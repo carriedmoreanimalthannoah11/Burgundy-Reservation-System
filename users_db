@@ -1,0 +1,72 @@
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS users_db;
+USE users_db;
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100) NOT NULL,
+    mobile VARCHAR(15) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Admins table
+CREATE TABLE IF NOT EXISTS admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Reservations table with foreign key to admins table
+CREATE TABLE IF NOT EXISTS reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    room_type VARCHAR(100) NOT NULL,
+    hours VARCHAR(50) NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    checkin_date DATE NOT NULL,
+    checkin_time TIME NOT NULL,
+    checkout_date DATE NOT NULL,
+    checkout_time TIME NOT NULL,
+    payment_method VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,  -- Link to admin who created the reservation
+    CONSTRAINT fk_created_by FOREIGN KEY (created_by) REFERENCES admins(id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- Grant privileges to root user
+GRANT ALL PRIVILEGES ON users_db.* TO 'root'@'localhost';
+FLUSH PRIVILEGES;
+
+-- ✅ Sample Data for Testing
+INSERT INTO users (fullname, mobile, email, password) 
+VALUES 
+('John Doe', '1234567890', 'john@example.com', 'password123'),
+('Jane Smith', '0987654321', 'jane@example.com', 'password456');
+
+INSERT INTO admins (username, password) 
+VALUES 
+('admin1', 'adminpass1'),
+('admin2', 'adminpass2');
+
+INSERT INTO reservations (name, room_type, hours, total_price, checkin_date, checkin_time, checkout_date, checkout_time, payment_method, created_by)
+VALUES 
+('John Doe', 'Suite', '3', 150.00, '2025-04-01', '14:00:00', '2025-04-01', '17:00:00', 'Credit Card', 1),
+('Jane Smith', 'Deluxe', '2', 100.00, '2025-04-02', '10:00:00', '2025-04-02', '12:00:00', 'Cash', 2);
+
+-- ✅ Verify Data
+SELECT * FROM users;
+SELECT * FROM admins;
+SELECT * FROM reservations;
+
+CREATE TABLE contact_us (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
